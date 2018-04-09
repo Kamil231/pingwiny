@@ -1,0 +1,98 @@
+#include "winbgi2.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+//pingwin jest reprezentowany przez krzyzyk, ryby przez okrąg ich ilosc to liczba w okregu
+
+int dimBox = 100;		//rozmiar pola
+//pola planszy sa reprezentowane przez tablice struktur
+typedef struct {
+	int fishnumber, ispenguin; //liczba pingwinow na danym polu, jesli na polu jest pingwin to zmienna ispenguin przyjmuje wartosc 1
+} Point;
+//funkcja generujaca plansze
+void board(int dimX,int dimY){
+	char str[10];
+	graphics(dimX * dimBox, dimY * dimBox);
+	for (int i = 1; i < dimX; ++i){
+		line(dimBox * i, 0, dimBox * i, dimY * dimBox);				//rysowanie siatki
+		sprintf(str, "%d", i);
+		outtextxy(dimBox * i + dimBox/2, dimBox / 2, str);			//numeracja kolumn
+	}
+	for (int i = 1; i < dimX; ++i){									
+		line(0, dimBox * i, dimX * dimBox, dimBox * i);				//rysowanie siatki
+		sprintf(str, "%d", i);
+		outtextxy(dimBox / 2, dimBox * i + dimBox / 2, str);		//numeracja wierszy
+	}
+}
+//funkcja wyswietlajaca stan gry
+void disp(int dimX, int dimY, Point** a){
+	int ile;
+	char str[10];
+	for (int i = 0; i<dimX; i++)
+	{
+		for (int j = 0; j<dimY; j++)
+		{
+			ile = a[i][j].fishnumber;
+			if (ile > 0){
+				circle(dimBox * j + dimBox * 3 / 2, dimBox * i + dimBox * 3 / 2, dimBox / 4);				//wyswitlanie ryb w postaci okregu, ich ilosc to cyfra w okregu
+				sprintf(str, "%d", ile);
+				outtextxy(dimBox * j + dimBox * 3 / 2, dimBox * i + dimBox * 3 / 2, str);
+			}
+			if (a[i][j].ispenguin == 1){
+				line(dimBox * i + dimBox, dimBox * j + dimBox, dimBox * i + dimBox * 2, dimBox * j + dimBox * 2);			//wyswietla krzyzyk jesli na danym polu jest pingwin
+				line(dimBox * i + dimBox * 2, dimBox * j + dimBox, dimBox * i + dimBox, dimBox * j + dimBox * 2);
+			}
+		}
+	}
+}
+//funkcja generujaca ryby na losowych polach i w losowej ilosci (z przedzialu 1-3)
+void fishdistribution(Point** array, int dimX, int dimY)
+{
+	time_t t;
+	int i, j, random;
+	srand((unsigned)time(&t));
+	for (i = 0; i<dimX; i++)
+	{
+		for (j = 0; j<dimY; j++)
+		{
+			random = rand() % 100;
+			if (random < 20)							//z jakim prawdopodonienstwem na polu wywietla sie pryby
+				array[i][j].fishnumber = random % 4;	//generacja liczby ryb 
+			else
+				array[i][j].fishnumber = 0;
+		}
+	}
+}
+//funkcja stawiajaca pingwina na danym polu
+void penguinposition(Point** a){
+	printf("podej pozycje ptoka\n");
+	int x, y;
+	scanf("%d%d", &x, &y);
+	a[x - 1][y - 1].ispenguin = 1;
+}
+
+void main()
+{
+	int dimX, dimY;
+	printf("podaj wymiary planszy\n");
+	scanf("%d%d", &dimX, &dimY);
+
+	Point **a;
+	a = (Point**)malloc(dimX*sizeof(Point*));
+	for (int i = 0; i < dimX; i++)
+		a[i] = (Point*)malloc(dimY*sizeof(Point));
+
+	penguinposition(a);
+
+	board(dimX + 1, dimY + 1);
+
+	fishdistribution(a, dimX, dimY);
+
+	disp(dimX, dimY, a);
+
+	for (int i = 0; i < dimX; i++) free(a[i]);
+	free(a);
+
+	wait();
+	
+}
