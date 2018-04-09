@@ -5,9 +5,13 @@
 //pingwin jest reprezentowany przez krzyzyk, ryby przez okrąg ich ilosc to liczba w okregu
 
 int dimBox = 100;		//rozmiar pola
+
+typedef struct{
+	int punkty;
+} Penguin;
 //pola planszy sa reprezentowane przez tablice struktur
 typedef struct {
-	int fishnumber, ispenguin; //liczba pingwinow na danym polu, jesli na polu jest pingwin to zmienna ispenguin przyjmuje wartosc 1
+	int fishnumber, penguinid; //liczba pingwinow na danym polu, jesli na polu jest pingwin to zmienna ispenguin przyjmuje wartosc id pingwina, jezeli ich nie ma to idpenguin = 0
 } Point;
 //funkcja generujaca plansze
 void board(int dimX,int dimY){
@@ -38,9 +42,11 @@ void disp(int dimX, int dimY, Point** a){
 				sprintf(str, "%d", ile);
 				outtextxy(dimBox * j + dimBox * 3 / 2, dimBox * i + dimBox * 3 / 2, str);
 			}
-			if (a[i][j].ispenguin == 1){
+			if (a[i][j].penguinid > 0){
 				line(dimBox * i + dimBox, dimBox * j + dimBox, dimBox * i + dimBox * 2, dimBox * j + dimBox * 2);			//wyswietla krzyzyk jesli na danym polu jest pingwin
 				line(dimBox * i + dimBox * 2, dimBox * j + dimBox, dimBox * i + dimBox, dimBox * j + dimBox * 2);
+				sprintf(str, "%d", a[i][j].penguinid);
+				outtextxy(dimBox * i + dimBox * 3 / 2, dimBox * j + dimBox * 3 / 2, str);
 			}
 		}
 	}
@@ -65,23 +71,25 @@ void fishdistribution(Point** array, int dimX, int dimY)
 }
 //funkcja stawiajaca pingwina na danym polu
 void penguinposition(Point** a){
-	printf("podej pozycje ptoka\n");
-	int x, y;
-	scanf("%d%d", &x, &y);
-	a[x - 1][y - 1].ispenguin = 1;
+	printf("podej pozycje ptoka i jego id\n");
+	int x, y, id;
+	scanf("%d%d%d", &x, &y, &id);
+	a[x - 1][y - 1].penguinid = id;
 }
 
 void main()
 {
-	int dimX, dimY;
-	printf("podaj wymiary planszy\n");
-	scanf("%d%d", &dimX, &dimY);
-
+	int dimX, dimY, N;
+	printf("podaj wymiary planszy i liczbe graczy\n");
+	scanf("%d%d%d", &dimX, &dimY, &N);
+	Penguin *b = (Penguin*)malloc(N*sizeof(Penguin));
 	Point **a;
 	a = (Point**)malloc(dimX*sizeof(Point*));
 	for (int i = 0; i < dimX; i++)
 		a[i] = (Point*)malloc(dimY*sizeof(Point));
 
+	penguinposition(a);
+	penguinposition(a);
 	penguinposition(a);
 
 	board(dimX + 1, dimY + 1);
